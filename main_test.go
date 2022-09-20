@@ -2,7 +2,7 @@ package traefik_plugin_cors_preflight_test
 
 import (
 	"context"
-	"github.com/medzoner/traefik_plugin_cors_preflight"
+	"github.com/Medzoner/traefik-plugin-cors-preflight"
 	"gotest.tools/assert"
 	"net/http"
 	"net/http/httptest"

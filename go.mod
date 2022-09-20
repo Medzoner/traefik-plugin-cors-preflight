@@ -1,6 +1,6 @@
-module github.com/medzoner/traefik_plugin_cors_preflight
+module github.com/Medzoner/traefik-plugin-cors-preflight
 
-go 1.14
+go 1.17
 
 require gotest.tools v2.2.0+incompatible
 
