@@ -6,5 +6,5 @@ import: github.com/medzoner/traefik-plugin-cors-preflight
 summary: 'Pass the browser cors preflight with response status 204 for Method OPTIONS'
 
 testData:
-  code: 204
-  method: 'OPTIONS'
+  Code: 204
+  Method: 'OPTIONS'
