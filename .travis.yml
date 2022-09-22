@@ -1,0 +1,26 @@
+language: go
+
+go:
+  - '1.17.6'
+
+branches:
+  only:
+    - master
+
+services:
+  - docker
+
+before_install:
+  - go get github.com/modocache/gover
+  - go get github.com/mattn/goveralls
+
+script:
+  - go test -v -cover -coverpkg=./... -covermode=count -coverprofile=coverage.out ./...
+  - go tool cover -func=coverage.out
+  - go tool cover -html=coverage.out -o coverage.html
+  - go vet ./...
+  - gofmt -w .
+  - test -z "$(gofmt -w -d -s ./ | tee /dev/stderr)"
+
+after_script:
+  - $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN;

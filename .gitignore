@@ -1,2 +1,4 @@
 *.out
 .idea
+coverage.out
+coverage.html
