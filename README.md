@@ -18,7 +18,7 @@ Requirements: Traefik >= v2.5.5
 ```bash
 --pilot.token=xxx
 --experimental.plugins.corspreflight.modulename=github.com/Medzoner/traefik-plugin-cors-preflight
---experimental.plugins.corspreflight.version=v1.0.4
+--experimental.plugins.corspreflight.version=v1.0.7
 ```
 
 ```yaml
@@ -29,7 +29,7 @@ experimental:
   plugins:
     corspreflight:
       modulename: github.com/Medzoner/traefik-plugin-cors-preflight
-      version: v1.0.4
+      version: v1.0.7
 ```
 
 ```toml
@@ -38,7 +38,7 @@ experimental:
 
 [experimental.plugins.corspreflight]
     modulename = "github.com/Medzoner/traefik-plugin-cors-preflight"
-    version = "v1.0.4"
+    version = "v1.0.7"
 ```
 
 ```yml
