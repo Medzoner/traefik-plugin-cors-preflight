@@ -18,7 +18,7 @@ Requirements: Traefik >= v2.5.5
 ```bash
 --pilot.token=xxx
 --experimental.plugins.corspreflight.modulename=github.com/Medzoner/traefik-plugin-cors-preflight
---experimental.plugins.corspreflight.version=v1.0.4
+--experimental.plugins.corspreflight.version=v1.0.7
 ```
 
 ```yaml
@@ -29,7 +29,7 @@ experimental:
   plugins:
     corspreflight:
       modulename: github.com/Medzoner/traefik-plugin-cors-preflight
-      version: v1.0.4
+      version: v1.0.7
 ```
 
 ```toml
@@ -38,14 +38,14 @@ experimental:
 
 [experimental.plugins.corspreflight]
     modulename = "github.com/Medzoner/traefik-plugin-cors-preflight"
-    version = "v1.0.4"
+    version = "v1.0.7"
 ```
 
 ```yml
 testData:
   testData:
-    Code: 204
-    Method: 'OPTIONS'
+    code: 204
+    method: 'OPTIONS'
 ```
 
 ### Dynamic
@@ -60,7 +60,8 @@ http:
     corspreflight-middleware:
       plugin:
         corspreflight:
-          errorCode: 200
+          code: 200
+          method: OPTIONS
 
   routers:
     my-router:
@@ -79,7 +80,8 @@ http:
 ```toml
 [http.middlewares]
   [http.middlewares.corspreflight-middleware.plugin.corspreflight]
-    errorCode = 200
+    code = 200
+    method = "OPTIONS"
 
 [http.routers]
   [http.routers.my-router]
@@ -105,7 +107,8 @@ metadata:
 spec:
   plugin:
     corspreflight:
-      errorCode: 200
+      code: 200
+      method: OPTIONS
 
 ---
 apiVersion: traefik.containo.us/v1alpha1
@@ -135,7 +138,8 @@ metadata:
 spec:
   plugin:
     corspreflight:
-      errorCode: 200
+      code: 200
+      method: OPTIONS
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -174,7 +178,8 @@ services:
       traefik.http.routers.app.entrypoints: websecure
       traefik.http.routers.app.middlewares: corspreflight-middleware
       
-      traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.errorcode: 200
+      traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.code: 200
+      traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.method: 'OPTIONS'
 ```
 
 ## Developed & Maintained by
