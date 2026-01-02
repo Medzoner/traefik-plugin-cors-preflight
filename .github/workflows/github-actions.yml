@@ -1,0 +1,56 @@
+name: traefik-plugin-cors-preflight
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25"
+          cache: true
+
+      - name: Install tools (gover / goveralls)
+        run: |
+          go install github.com/modocache/gover@latest
+          go install github.com/mattn/goveralls@latest
+
+      - name: Test + coverage
+        run: |
+          go test -v -cover -coverpkg=./... -covermode=count -coverprofile=coverage.out ./...
+          go tool cover -func=coverage.out
+          go tool cover -html=coverage.out -o coverage.html
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Gofmt check
+        run: |
+          files="$(gofmt -l -s .)"
+          if [ -n "$files" ]; then
+            echo "These files are not gofmt'd:"
+            echo "$files"
+            exit 1
+          fi
+
+      - name: Upload coverage HTML artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage-html
+          path: coverage.html
+
+      - name: Coveralls
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        run: |
+          goveralls -coverprofile=coverage.out -service=github
