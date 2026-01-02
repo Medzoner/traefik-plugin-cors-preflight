@@ -33,6 +33,9 @@ func CreateConfig() *Config {
 	return &Config{
 		StatusCodeRange: statusCodeRange{Min: 100, Max: 599},
 		AllowMethods:    []string{http.MethodOptions},
+		Method:          http.MethodOptions,
+		Code:            http.StatusNoContent,
+		Debug:           false,
 	}
 }
 
