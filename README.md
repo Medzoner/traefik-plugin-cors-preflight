@@ -2,8 +2,9 @@
 
 [![Build Status](https://travis-ci.com/Medzoner/traefik-plugin-cors-preflight.svg?token=USx1h5scpzCMKrhJnEzv&branch=master)](https://travis-ci.com/github/Medzoner/traefik-plugin-cors-preflight)
 [![Coverage Status](https://coveralls.io/repos/github/Medzoner/traefik-plugin-cors-preflight/badge.svg?branch=master&service=github)](https://coveralls.io/github/Medzoner/traefik-plugin-cors-preflight?branch=master)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Go report](https://goreportcard.com/badge/github.com/Medzoner/traefik-plugin-cors-preflight?service=github)](https://goreportcard.com/report/github.com/Medzoner/traefik-plugin-cors-preflight?service=github)
+[![tag](https://img.shields.io/github/v/tag/Medzoner/traefik-plugin-cors-preflight?sort=date)](https://img.shields.io/github/v/tag/Medzoner/traefik-plugin-cors-preflight?sort=date)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 ## Short Description
 Pass the browser cors preflight with response status 204 for Method OPTIONS

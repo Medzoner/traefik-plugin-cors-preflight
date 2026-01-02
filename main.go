@@ -4,18 +4,19 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"slices"
 )
 
 type statusCodeRange struct {
-	min int
-	max int
+	Min int
+	Max int
 }
 
 type Config struct {
 	Method          string `json:"method,omitempty"`
-	Code            int    `json:"code,omitempty"`
-	StatusCodeRange statusCodeRange
 	AllowMethods    []string
+	StatusCodeRange statusCodeRange
+	Code            int `json:"code,omitempty"`
 }
 
 type CorsPreflight struct {
@@ -27,23 +28,24 @@ type CorsPreflight struct {
 
 func CreateConfig() *Config {
 	return &Config{
-		StatusCodeRange: statusCodeRange{min: 100, max: 599},
-		AllowMethods:    []string{"OPTIONS"},
+		StatusCodeRange: statusCodeRange{Min: 100, Max: 599},
+		AllowMethods:    []string{http.MethodOptions},
 	}
 }
 
-func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
-	_ = ctx
-	if config.Code < config.StatusCodeRange.min {
-		return nil, fmt.Errorf("status code is smallest than minimum value: %v", config.StatusCodeRange.min)
+func New(_ context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
+	if config.Code < config.StatusCodeRange.Min {
+		return nil, fmt.Errorf("status code is smallest than minimum value: %v", config.StatusCodeRange.Min)
 	}
-	if config.Code > config.StatusCodeRange.max {
-		return nil, fmt.Errorf("status code is biggest than maximum value: %v", config.StatusCodeRange.max)
+	if config.Code > config.StatusCodeRange.Max {
+		return nil, fmt.Errorf("status code is biggest than maximum value: %v", config.StatusCodeRange.Max)
 	}
-	if !contains(config.AllowMethods, config.Method) {
-		return nil, fmt.Errorf("method is not allowed: " + config.Method)
+	if !slices.Contains(config.AllowMethods, config.Method) {
+		return nil, fmt.Errorf("method is not allowed: %v", config.Method)
 	}
+
 	fmt.Printf("Plugin traefik-plugin-cors-preflight - Init with return code %v for method %v\n", config.Method, config.Code)
+
 	return &CorsPreflight{
 		next:   next,
 		name:   name,
@@ -57,16 +59,8 @@ func (r *CorsPreflight) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(r.Code)
 		return
 	}
+
 	if req.Method != r.Method {
 		r.next.ServeHTTP(rw, req)
 	}
-}
-
-func contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
-			return true
-		}
-	}
-	return false
 }

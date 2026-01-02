@@ -1,87 +1,100 @@
 package traefik_plugin_cors_preflight_test
 
 import (
-	"context"
-	"github.com/Medzoner/traefik-plugin-cors-preflight"
-	"gotest.tools/assert"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	traefik_plugin_cors_preflight "github.com/Medzoner/traefik-plugin-cors-preflight"
+	"gotest.tools/assert"
 )
 
-func TestServeSuccess(t *testing.T) {
-	cfg := traefik_plugin_cors_preflight.CreateConfig()
-	cfg.Method = "OPTIONS"
-	cfg.Code = 204
-
-	ctx := context.Background()
-	next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
-
-	handler, err := traefik_plugin_cors_preflight.New(ctx, next, cfg, "preflight-plugin")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Run("Unit test: test ServeHTTP force return - success", func(t *testing.T) {
-		recorder := httptest.NewRecorder()
-
-		req, err := http.NewRequestWithContext(ctx, http.MethodOptions, "http://localhost", nil)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		handler.ServeHTTP(recorder, req)
-
-		assert.Equal(t, recorder.Code, 204)
-	})
-	t.Run("Unit test: test ServeHTTP next middleware - success", func(t *testing.T) {
-		recorder := httptest.NewRecorder()
-
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://localhost", nil)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		handler.ServeHTTP(recorder, req)
-
-		assert.Equal(t, recorder.Code, 200)
-	})
+type testCase struct {
+	name     string
+	method   string
+	in       in
+	err      error
+	expected int
 }
 
-func TestServeFailed(t *testing.T) {
-	t.Run("Unit test: test conf with method not allowed - failed", func(t *testing.T) {
-		cfg := traefik_plugin_cors_preflight.CreateConfig()
-		cfg.Method = "GET"
-		cfg.Code = 204
+type in struct {
+	method string
+}
 
-		ctx := context.Background()
-		next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
+func TestServe(t *testing.T) {
+	cfg := traefik_plugin_cors_preflight.CreateConfig()
+	for _, tc := range []testCase{
+		{
+			name:   "force return - success",
+			method: http.MethodOptions,
+			in: in{
+				method: http.MethodOptions,
+			},
+			err:      nil,
+			expected: http.StatusNoContent,
+		},
+		{
+			name:   "next middleware - success",
+			method: http.MethodOptions,
+			in: in{
+				method: http.MethodGet,
+			},
+			err:      nil,
+			expected: http.StatusOK,
+		},
+		{
+			name:   "conf with method not allowed - failed",
+			method: http.MethodGet,
+			in: in{
+				method: http.MethodGet,
+			},
+			err:      fmt.Errorf("method is not allowed: " + http.MethodGet),
+			expected: http.StatusOK,
+		},
+		{
+			name:   "conf with code smallest than Min - failed",
+			method: http.MethodOptions,
+			in: in{
+				method: http.MethodOptions,
+			},
+			err:      fmt.Errorf("status code is smallest than minimum value: %v", cfg.StatusCodeRange.Min),
+			expected: 99,
+		},
+		{
+			name:   "conf with code biggest than Max - failed",
+			method: http.MethodOptions,
+			in: in{
+				method: http.MethodOptions,
+			},
+			err:      fmt.Errorf("status code is biggest than maximum value: %v", cfg.StatusCodeRange.Max),
+			expected: 600,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg.Method = tc.method
+			cfg.Code = tc.expected
 
-		_, err := traefik_plugin_cors_preflight.New(ctx, next, cfg, "preflight-plugin")
+			next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
+			handler, err := traefik_plugin_cors_preflight.New(t.Context(), next, cfg, "preflight-plugin")
+			if err != nil {
+				if tc.err != nil {
+					assert.Equal(t, err.Error(), tc.err.Error())
+					return
+				}
+				t.Fatal(err)
+			}
 
-		assert.Equal(t, err.Error(), "method is not allowed: GET")
-	})
-	t.Run("Unit test: test conf with code smallest than min - failed", func(t *testing.T) {
-		cfg := traefik_plugin_cors_preflight.CreateConfig()
-		cfg.Method = "OPTIONS"
-		cfg.Code = 99
+			req, err := http.NewRequestWithContext(t.Context(), tc.in.method, "http://localhost", nil)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		ctx := context.Background()
-		next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
+			recorder := httptest.NewRecorder()
 
-		_, err := traefik_plugin_cors_preflight.New(ctx, next, cfg, "preflight-plugin")
+			handler.ServeHTTP(recorder, req)
 
-		assert.Equal(t, err.Error(), "status code is smallest than minimum value: 100")
-	})
-	t.Run("Unit test: test conf with code biggest than max - failed", func(t *testing.T) {
-		cfg := traefik_plugin_cors_preflight.CreateConfig()
-		cfg.Method = "OPTIONS"
-		cfg.Code = 600
-
-		ctx := context.Background()
-		next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
-
-		_, err := traefik_plugin_cors_preflight.New(ctx, next, cfg, "preflight-plugin")
-
-		assert.Equal(t, err.Error(), "status code is biggest than maximum value: 599")
-	})
+			assert.Equal(t, recorder.Code, tc.expected)
+		})
+	}
 }
