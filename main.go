@@ -13,11 +13,12 @@ type statusCodeRange struct {
 }
 
 type Config struct {
+	//AllowOrigins string `json:"allowOrigins,omitempty"`
 	Method          string `json:"method,omitempty"`
 	AllowMethods    []string
 	StatusCodeRange statusCodeRange
-	Code            int  `json:"code,omitempty"`
-	Debug           bool `json:"debug,omitempty"`
+	Code            int `json:"code,omitempty"`
+	//Debug           bool `json:"debug,omitempty"`
 }
 
 type CorsPreflight struct {
@@ -25,7 +26,7 @@ type CorsPreflight struct {
 	next   http.Handler
 	Method string
 	Code   int
-	Debug  bool
+	//Debug  bool
 }
 
 func CreateConfig() *Config {
@@ -34,7 +35,8 @@ func CreateConfig() *Config {
 		AllowMethods:    []string{http.MethodOptions},
 		Method:          http.MethodOptions,
 		Code:            http.StatusNoContent,
-		Debug:           false,
+		//Debug:           false,
+		//AllowOrigins:   "*",
 	}
 }
 
@@ -49,22 +51,34 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 		return nil, fmt.Errorf("method is not allowed: %s", config.Method)
 	}
 
+	//log.Printf("Plugin traefik-plugin-cors-preflight - Init with return code %d for method %s\n", config.Code, config.Method)
+
 	return &CorsPreflight{
 		next:   next,
 		name:   name,
 		Code:   config.Code,
 		Method: config.Method,
-		Debug:  config.Debug,
+		//Debug:  config.Debug,
 	}, nil
 }
 
 func (r *CorsPreflight) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	//if r.Debug {
+	//	log.Printf("Plugin traefik-plugin-cors-preflight - Received request with method: %s\n", req.Method)
+	//}
+
 	if req.Method == r.Method {
+		//if r.Debug {
+		//	log.Printf("Plugin traefik-plugin-cors-preflight - Returning status code: %d for method: %s\n", r.Code, r.Method)
+		//}
 		rw.WriteHeader(r.Code)
 		return
 	}
 
 	if req.Method != r.Method {
+		//if r.Debug {
+		//	log.Printf("Plugin traefik-plugin-cors-preflight - Passing to next middleware for method: %s\n", req.Method)
+		//}
 		r.next.ServeHTTP(rw, req)
 	}
 }
