@@ -19,7 +19,7 @@ Requirements: Traefik >= v2.5.5
 ```bash
 --pilot.token=xxx
 --experimental.plugins.corspreflight.modulename=github.com/Medzoner/traefik-plugin-cors-preflight
---experimental.plugins.corspreflight.version=v1.0.7
+--experimental.plugins.corspreflight.version=v1.1.1
 ```
 
 ```yaml
@@ -30,7 +30,7 @@ experimental:
   plugins:
     corspreflight:
       modulename: github.com/Medzoner/traefik-plugin-cors-preflight
-      version: v1.0.7
+      version: v1.1.1
 ```
 
 ```toml
@@ -39,7 +39,7 @@ experimental:
 
 [experimental.plugins.corspreflight]
     modulename = "github.com/Medzoner/traefik-plugin-cors-preflight"
-    version = "v1.0.7"
+    version = "v1.1.1"
 ```
 
 ```yml
@@ -47,6 +47,7 @@ testData:
   testData:
     code: 204
     method: 'OPTIONS'
+    debug: false
 ```
 
 ### Dynamic
@@ -63,6 +64,7 @@ http:
         corspreflight:
           code: 200
           method: OPTIONS
+          debug: false
 
   routers:
     my-router:
@@ -83,6 +85,7 @@ http:
   [http.middlewares.corspreflight-middleware.plugin.corspreflight]
     code = 200
     method = "OPTIONS"
+    debug = false
 
 [http.routers]
   [http.routers.my-router]
@@ -110,6 +113,7 @@ spec:
     corspreflight:
       code: 200
       method: OPTIONS
+      debug: false
 
 ---
 apiVersion: traefik.containo.us/v1alpha1
@@ -141,6 +145,7 @@ spec:
     corspreflight:
       code: 200
       method: OPTIONS
+      debug: false
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -167,8 +172,6 @@ spec:
 #### Docker
 
 ```yaml
-version: '3.7'
-
 services:
   whoami:
     image: traefik/whoami:v1.7.1
@@ -178,9 +181,10 @@ services:
       traefik.http.routers.app.rule: Host(`whoami.localhost`)
       traefik.http.routers.app.entrypoints: websecure
       traefik.http.routers.app.middlewares: corspreflight-middleware
-      
-      traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.code: 200
+
+      traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.code: 204
       traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.method: 'OPTIONS'
+      traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.debug: false
 ```
 
 ## Developed & Maintained by
