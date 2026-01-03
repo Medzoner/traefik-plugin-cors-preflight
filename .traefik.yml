@@ -1,5 +1,6 @@
 displayName: Cors Preflight
 type: middleware
+iconPath: .assets/icon.jpg
 
 import: github.com/Medzoner/traefik-plugin-cors-preflight
 
