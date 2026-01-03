@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
-	"log"
+	"os"
 )
 
 type statusCodeRange struct {
@@ -59,16 +59,18 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 		name:   name,
 		Code:   config.Code,
 		Method: config.Method,
-		//Debug:  config.Debug,
+		Debug:  config.Debug,
 	}, nil
 }
 
 func (r *CorsPreflight) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	log.Printf("Plugin traefik-plugin-cors-preflight - Received request with method: %s\n", req.Method)
+	if r.Debug {
+		os.Stdout.WriteString("Plugin traefik-plugin-cors-preflight - Received request with method: " + req.Method)
+	}
 
 	if req.Method == r.Method {
 		if r.Debug {
-			log.Printf("Plugin traefik-plugin-cors-preflight - Returning status code: %d for method: %s\n", r.Code, r.Method)
+			os.Stdout.WriteString(fmt.Sprintf("Plugin traefik-plugin-cors-preflight - Returning status code: %d for method: %s\n", r.Code, r.Method))
 		}
 		rw.WriteHeader(r.Code)
 		return
@@ -76,7 +78,7 @@ func (r *CorsPreflight) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	if req.Method != r.Method {
 		if r.Debug {
-			log.Printf("Plugin traefik-plugin-cors-preflight - Passing to next middleware for method: %s\n", req.Method)
+			os.Stdout.WriteString(fmt.Sprintf("Plugin traefik-plugin-cors-preflight - Passing to next middleware for method: %s\n", req.Method))
 		}
 		r.next.ServeHTTP(rw, req)
 	}

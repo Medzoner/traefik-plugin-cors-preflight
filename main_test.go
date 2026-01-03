@@ -24,6 +24,7 @@ type in struct {
 
 func TestServe(t *testing.T) {
 	cfg := traefik_plugin_cors_preflight.CreateConfig()
+	cfg.Debug = true
 	for _, tc := range []testCase{
 		{
 			name:   "force return - success",
