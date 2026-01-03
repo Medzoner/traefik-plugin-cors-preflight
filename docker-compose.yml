@@ -1,0 +1,49 @@
+services:
+  traefik:
+    image: "traefik:v3.6.6"
+    container_name: "traefik"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+      - "--entryPoints.web.address=:80"
+      - "--log=true"
+      - "--log.level=DEBUG"
+      - "--api"
+      - "--api.insecure=true"
+      - "--api.debug=true"
+      - "--api.dashboard=true"
+      - "--experimental.plugins.corspreflight.modulename=github.com/Medzoner/traefik-plugin-cors-preflight"
+      - "--experimental.plugins.corspreflight.version=v1.1.1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/home/me/src/softwares/go
+    ports:
+      - "8099:80"
+      - "9999:8080"
+
+  whoami:
+    image: "traefik/whoami"
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
+      - "traefik.http.routers.whoami.middlewares=corspreflight-middleware"
+      - "traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.code=204"
+      - "traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.method=OPTIONS"
+      - "traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.debug=true"
+      - "traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.allowOrigins=*"
+      - "traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.allowMethods=GET,POST,OPTIONS"
+      - "traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.allowHeaders=Content-Type,Authorization"
+
+networks:
+  proxy:
+    name: proxy

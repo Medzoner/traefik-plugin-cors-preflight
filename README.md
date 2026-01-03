@@ -19,7 +19,7 @@ Requirements: Traefik >= v2.5.5
 ```bash
 --pilot.token=xxx
 --experimental.plugins.corspreflight.modulename=github.com/Medzoner/traefik-plugin-cors-preflight
---experimental.plugins.corspreflight.version=v1.1.12
+--experimental.plugins.corspreflight.version=v1.1.1
 ```
 
 ```yaml
@@ -30,7 +30,7 @@ experimental:
   plugins:
     corspreflight:
       modulename: github.com/Medzoner/traefik-plugin-cors-preflight
-      version: v1.1.12
+      version: v1.1.1
 ```
 
 ```toml
@@ -39,7 +39,7 @@ experimental:
 
 [experimental.plugins.corspreflight]
     modulename = "github.com/Medzoner/traefik-plugin-cors-preflight"
-    version = "v1.1.12"
+    version = "v1.1.1"
 ```
 
 ```yml
@@ -48,7 +48,7 @@ testData:
     code: 204
     method: 'OPTIONS'
     debug: false
-    allowOrigin: '*'
+    allowOrigins: '*'
     allowMethods: 'GET,POST,OPTIONS'
     allowHeaders: 'Content-Type,Authorization'
 ```
@@ -68,7 +68,7 @@ http:
           code: 200
           method: OPTIONS
           debug: false
-          allowOrigin: '*'
+          allowOrigins: '*'
           allowMethods: 'GET,POST,OPTIONS'
           allowHeaders: 'Content-Type,Authorization'
 
@@ -92,7 +92,7 @@ http:
     code = 200
     method = "OPTIONS"
     debug = false
-    allowOrigin = "*"
+    allowOrigins = "*"
     allowMethods = "GET,POST,OPTIONS"
     allowHeaders = "Content-Type,Authorization"
 
@@ -123,7 +123,7 @@ spec:
       code: 200
       method: OPTIONS
       debug: false
-      allowOrigin: '*'
+      allowOrigins: '*'
       allowMethods: 'GET,POST,OPTIONS'
       allowHeaders: 'Content-Type,Authorization'
 
@@ -158,7 +158,7 @@ spec:
       code: 200
       method: OPTIONS
       debug: false
-      allowOrigin: '*'
+      allowOrigins: '*'
       allowMethods: 'GET,POST,OPTIONS'
       allowHeaders: 'Content-Type,Authorization'
 
@@ -200,7 +200,7 @@ services:
       traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.code: 204
       traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.method: 'OPTIONS'
       traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.debug: false
-      traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.allowOrigin: '*'
+      traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.allowOrigins: '*'
       traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.allowMethods: 'GET,POST,OPTIONS'
       traefik.http.middlewares.corspreflight-middleware.plugin.corspreflight.allowHeaders: 'Content-Type,Authorization'
 ```
