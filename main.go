@@ -64,9 +64,7 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 }
 
 func (r *CorsPreflight) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if r.Debug {
-		log.Printf("Plugin traefik-plugin-cors-preflight - Received request with method: %s\n", req.Method)
-	}
+	log.Printf("Plugin traefik-plugin-cors-preflight - Received request with method: %s\n", req.Method)
 
 	if req.Method == r.Method {
 		if r.Debug {
