@@ -17,8 +17,8 @@ type Config struct {
 	Method          string `json:"method,omitempty"`
 	AllowMethods    []string
 	StatusCodeRange statusCodeRange
-	Code            int `json:"code,omitempty"`
-	//Debug           bool `json:"debug,omitempty"`
+	Code            int  `json:"code,omitempty"`
+	Debug           bool `json:"debug,omitempty"`
 }
 
 type CorsPreflight struct {
@@ -26,7 +26,7 @@ type CorsPreflight struct {
 	next   http.Handler
 	Method string
 	Code   int
-	//Debug  bool
+	Debug  bool
 }
 
 func CreateConfig() *Config {
@@ -35,7 +35,7 @@ func CreateConfig() *Config {
 		AllowMethods:    []string{http.MethodOptions},
 		Method:          http.MethodOptions,
 		Code:            http.StatusNoContent,
-		//Debug:           false,
+		Debug:           false,
 		//AllowOrigins:   "*",
 	}
 }
