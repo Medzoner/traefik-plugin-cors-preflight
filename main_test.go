@@ -25,6 +25,9 @@ type in struct {
 func TestServe(t *testing.T) {
 	cfg := traefik_plugin_cors_preflight.CreateConfig()
 	cfg.Debug = true
+	cfg.AllowOrigins = []string{"*"}
+	cfg.AllowMethods = []string{http.MethodOptions, http.MethodGet, http.MethodPost}
+	cfg.AllowHeaders = []string{"Content-Type", "Authorization"}
 	for _, tc := range []testCase{
 		{
 			name:   "force return - success",
@@ -46,11 +49,11 @@ func TestServe(t *testing.T) {
 		},
 		{
 			name:   "conf with method not allowed - failed",
-			method: http.MethodGet,
+			method: http.MethodTrace,
 			in: in{
 				method: http.MethodGet,
 			},
-			err:      fmt.Errorf("method is not allowed: " + http.MethodGet),
+			err:      fmt.Errorf("method is not allowed: " + http.MethodTrace),
 			expected: http.StatusOK,
 		},
 		{
