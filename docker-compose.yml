@@ -19,7 +19,7 @@ services:
       - "--api.debug=true"
       - "--api.dashboard=true"
       - "--experimental.plugins.corspreflight.modulename=github.com/Medzoner/traefik-plugin-cors-preflight"
-      - "--experimental.plugins.corspreflight.version=v1.1.1"
+      - "--experimental.plugins.corspreflight.version=v1.2.0"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/home/me/src/softwares/go
