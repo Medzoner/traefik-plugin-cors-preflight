@@ -17,7 +17,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.25"
+          go-version: "1.26"
           cache: true
 
       - name: Install tools (gover / goveralls)
@@ -44,7 +44,7 @@ jobs:
           fi
 
       - name: Upload coverage HTML artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-html
           path: coverage.html
