@@ -6,7 +6,21 @@ import (
 	"net/http"
 	"os"
 	"slices"
+
+	"github.com/rs/zerolog"
 )
+
+type headerName string
+
+const (
+	headerAllowOrigin  headerName = "Access-Control-Allow-Origin"
+	headerAllowMethods headerName = "Access-Control-Allow-Methods"
+	headerAllowHeaders headerName = "Access-Control-Allow-Headers"
+)
+
+func (h headerName) String() string {
+	return string(h)
+}
 
 type (
 	statusCodeRange struct {
@@ -32,11 +46,10 @@ type (
 		AllowMethods []string
 		AllowHeaders []string
 		Code         int
-		Debug        bool
 	}
 )
 
-var debugMode bool
+var logger = zerolog.New(os.Stdout).With().Timestamp().Logger().Level(zerolog.ErrorLevel)
 
 func CreateConfig() *Config {
 	return &Config{
@@ -61,16 +74,17 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 		return nil, fmt.Errorf("method is not allowed: %s", config.Method)
 	}
 
-	log("Plugin traefik-plugin-cors-preflight - Init with return code %d for method %s\n", config.Code, config.Method)
+	if config.Debug {
+		logger = logger.Level(zerolog.DebugLevel)
+	}
 
-	debugMode = config.Debug
+	log("Plugin traefik-plugin-cors-preflight - Init with return code %d for method %s", config.Code, config.Method)
 
 	return &CorsPreflight{
 		next:         next,
 		name:         name,
 		Code:         config.Code,
 		Method:       config.Method,
-		Debug:        config.Debug,
 		AllowOrigins: config.AllowOrigins,
 		AllowMethods: config.AllowMethods,
 		AllowHeaders: config.AllowHeaders,
@@ -78,37 +92,35 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 }
 
 func (r *CorsPreflight) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	log("Plugin traefik-plugin-cors-preflight - Received request with method: %s\n", req.Method)
+	log("Plugin traefik-plugin-cors-preflight - Received request with method: %s", req.Method)
 
 	origin := req.Header.Get("Origin")
 	for _, allowed := range r.AllowOrigins {
 		if origin == allowed || allowed == "*" {
-			rw.Header().Set("Access-Control-Allow-Origin", allowed)
+			rw.Header().Set(headerAllowOrigin.String(), allowed)
 			break
 		}
 	}
 
 	if len(r.AllowMethods) > 0 {
-		rw.Header().Set("Access-Control-Allow-Methods", fmt.Sprintf("%s", r.AllowMethods))
+		rw.Header().Set(headerAllowMethods.String(), fmt.Sprintf("%s", r.AllowMethods))
 	}
 
 	if len(r.AllowHeaders) > 0 {
-		rw.Header().Set("Access-Control-Allow-Headers", fmt.Sprintf("%s", r.AllowHeaders))
+		rw.Header().Set(headerAllowHeaders.String(), fmt.Sprintf("%s", r.AllowHeaders))
 	}
 
 	if req.Method == r.Method {
-		log("Plugin traefik-plugin-cors-preflight - Returning status code: %d for method: %s\n", r.Code, r.Method)
+		log("Plugin traefik-plugin-cors-preflight - Returning status code: %d for method: %s", r.Code, r.Method)
 		rw.WriteHeader(r.Code)
 
 		return
 	}
 
-	log("Plugin traefik-plugin-cors-preflight - Passing to next middleware for method: %s\n", req.Method)
+	log("Plugin traefik-plugin-cors-preflight - Passing to next middleware for method: %s", req.Method)
 	r.next.ServeHTTP(rw, req)
 }
 
 func log(s string, args ...any) {
-	if debugMode {
-		_, _ = fmt.Fprintf(os.Stdout, s, args...)
-	}
+	logger.Debug().Msgf(s, args...)
 }
